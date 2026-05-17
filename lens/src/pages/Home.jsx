@@ -1,9 +1,20 @@
+import { useState } from 'react';
 import { useStore } from '../contexts/StoreContext';
 import ProductCard from '../components/ProductCard';
 import { Sparkles, Shield, SunDim } from 'lucide-react';
 
 export default function Home() {
   const { products } = useStore();
+  const [activeCategory, setActiveCategory] = useState('All');
+
+  const categories = ['All', 'Rubber Frame', 'Metallic Frame'];
+
+  // Defensive fallback: If a product lacks a category, default it to 'Rubber Frame' for filtering purposes
+  const filteredProducts = products.filter(product => {
+    const productCategory = product.category || 'Rubber Frame';
+    if (activeCategory === 'All') return true;
+    return productCategory === activeCategory;
+  });
 
   return (
     <div className="min-h-screen bg-zinc-50">
@@ -58,17 +69,39 @@ export default function Home() {
 
       {/* Product Listing */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-        <div className="mb-12 flex justify-between items-end">
-          <div>
+        <div className="mb-12 flex flex-col md:flex-row justify-between items-center md:items-end gap-6">
+          <div className="text-center md:text-left">
             <h2 className="text-3xl font-bold text-slate-900">Our Collection</h2>
             <p className="text-slate-500 mt-2">Engineered for perfection, designed for you.</p>
+          </div>
+          
+          {/* Category Tabs */}
+          <div className="flex bg-white p-1 rounded-xl shadow-sm border border-zinc-200">
+            {categories.map(category => (
+              <button
+                key={category}
+                onClick={() => setActiveCategory(category)}
+                className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  activeCategory === category
+                    ? 'bg-slate-900 text-white shadow-md'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}
+              >
+                {category}
+              </button>
+            ))}
           </div>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
+          {filteredProducts.map((product) => (
+            <ProductCard key={product._id || product.id} product={product} />
           ))}
+          {filteredProducts.length === 0 && products.length > 0 && (
+            <div className="col-span-full py-20 text-center text-slate-500 bg-white border border-dashed border-slate-300 rounded-2xl">
+              No lenses available in this category.
+            </div>
+          )}
           {products.length === 0 && (
             <div className="col-span-full py-20 text-center text-slate-500 bg-white border border-dashed border-slate-300 rounded-2xl">
               No lenses currently available. Admin needs to add products.

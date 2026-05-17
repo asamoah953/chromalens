@@ -77,6 +77,12 @@ export default function ProductDetail() {
           {/* Details Section */}
           <div className="flex flex-col">
             <div className="mb-10">
+              {product.category && (
+                <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-sm font-medium text-indigo-600 mb-4">
+                  <Layers className="h-4 w-4" />
+                  <span>{product.category}</span>
+                </div>
+              )}
               <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">{product.name}</h1>
               <p className="text-3xl font-bold text-indigo-600 mb-6">GH₵{parseFloat(product.price).toFixed(2)}</p>
               <p className="text-lg text-slate-600 leading-relaxed font-light">

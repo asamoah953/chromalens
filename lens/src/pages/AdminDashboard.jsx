@@ -17,6 +17,7 @@ function EditModal({ product, onClose, onSave }) {
     description: product.description || '',
     benefits: Array.isArray(product.benefits) ? product.benefits.join(', ') : (product.benefits || ''),
     science: product.science || '',
+    category: product.category || 'Rubber Frame',
   });
   const [imageFile, setImageFile] = useState(null);
   const [imageUrlUrl, setImageUrlUrl] = useState('');
@@ -52,6 +53,7 @@ function EditModal({ product, onClose, onSave }) {
       JSON.stringify(formData.benefits.split(',').map((b) => b.trim()).filter(Boolean))
     );
     submitData.append('science', formData.science);
+    submitData.append('category', formData.category);
 
     if (imageFile) {
       submitData.append('imageFile', imageFile);
@@ -129,6 +131,19 @@ function EditModal({ product, onClose, onSave }) {
                 className={inputCls}
                 placeholder="400.00"
               />
+            </div>
+
+            {/* Category */}
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Category</label>
+              <select
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                className={inputCls}
+              >
+                <option value="Rubber Frame">Rubber Frame</option>
+                <option value="Metallic Frame">Metallic Frame</option>
+              </select>
             </div>
 
             {/* Image */}
@@ -252,7 +267,7 @@ export default function AdminDashboard() {
 
   // "Add" form state
   const [isAdding, setIsAdding] = useState(false);
-  const [formData, setFormData] = useState({ name: '', price: '', description: '', benefits: '', science: '' });
+  const [formData, setFormData] = useState({ name: '', price: '', description: '', benefits: '', science: '', category: 'Rubber Frame' });
   const [imageFile, setImageFile] = useState(null);
   const [imageUrlUrl, setImageUrlUrl] = useState('');
   const [previewUrl, setPreviewUrl] = useState('');
@@ -286,13 +301,14 @@ export default function AdminDashboard() {
     submitData.append('description', formData.description);
     submitData.append('benefits', JSON.stringify(formData.benefits.split(',').map((b) => b.trim()).filter(Boolean)));
     submitData.append('science', formData.science);
+    submitData.append('category', formData.category);
     if (imageFile) submitData.append('imageFile', imageFile);
     else submitData.append('imageUrlUrl', imageUrlUrl);
 
     const success = await addProduct(submitData);
     if (success) {
       setIsAdding(false);
-      setFormData({ name: '', price: '', description: '', benefits: '', science: '' });
+      setFormData({ name: '', price: '', description: '', benefits: '', science: '', category: 'Rubber Frame' });
       setImageFile(null); setImageUrlUrl(''); setPreviewUrl('');
     } else {
       alert('Error adding product. Please ensure backend is running.');
@@ -378,6 +394,13 @@ export default function AdminDashboard() {
                   <input type="number" step="0.01" required value={formData.price} onChange={(e) => setFormData({ ...formData, price: e.target.value })} className={inputCls} placeholder="400.00" />
                 </div>
                 <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Category</label>
+                  <select value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} className={inputCls}>
+                    <option value="Rubber Frame">Rubber Frame</option>
+                    <option value="Metallic Frame">Metallic Frame</option>
+                  </select>
+                </div>
+                <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-slate-700 mb-2">Product Image (Upload or URL)</label>
                   <div className="flex gap-4 items-center flex-wrap">
                     <input type="file" accept="image/*" onChange={handleImageUpload} className="block w-full sm:w-auto text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border border-zinc-200 file:text-sm file:font-medium file:cursor-pointer file:bg-white file:text-slate-700 hover:file:bg-zinc-50 transition-colors" />
@@ -425,7 +448,14 @@ export default function AdminDashboard() {
                     <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-slate-900 mb-1">{product.name}</h4>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h4 className="font-semibold text-slate-900">{product.name}</h4>
+                      {product.category && (
+                        <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-600">
+                          {product.category}
+                        </span>
+                      )}
+                    </div>
                     <span className="text-indigo-600 font-medium">GH₵{parseFloat(product.price).toFixed(2)}</span>
                   </div>
                 </div>
